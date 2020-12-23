@@ -27,11 +27,10 @@ class ShareInertiaData
                     'canUpdateProfileInformation' => Features::canUpdateProfileInformation(),
                     'hasApiFeatures' => Jetstream::hasApiFeatures(),
                     'managesProfilePhotos' => Jetstream::managesProfilePhotos(),
+                    'flash' => $request->session()
+                        ->get('flash', []),
                 ];
             },
-
-            'flash' => $request->session()
-                ->get('flash', []),
 
             'auth' => [
                 'user' => function () use ($request) {
@@ -40,7 +39,8 @@ class ShareInertiaData
                     }
 
                     return array_merge(
-                        $request->user()->toArray(),
+                        $request->user()
+                            ->toArray(),
                         ['two_factor_enabled' => !is_null($request->user()->two_factor_secret)]
                     );
                 },

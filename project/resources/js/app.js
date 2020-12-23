@@ -1,7 +1,5 @@
 require('./bootstrap');
 
-require('moment');
-
 import Vue from 'vue';
 
 import { InertiaApp } from '@inertiajs/inertia-vue';
@@ -12,6 +10,10 @@ Vue.mixin({ methods: { route } });
 Vue.use(InertiaApp);
 Vue.use(InertiaForm);
 Vue.use(PortalVue);
+
+window.dayjs = require('dayjs');
+var relativeTime = require('dayjs/plugin/relativeTime');
+window.dayjs.extend(relativeTime);
 
 const app = document.getElementById('app');
 

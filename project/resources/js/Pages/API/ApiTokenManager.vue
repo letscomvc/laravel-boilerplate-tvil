@@ -263,7 +263,7 @@
             },
 
             fromNow(timestamp) {
-                return moment(timestamp).local().fromNow()
+                return dayjs(timestamp).fromNow();
             },
         },
     }
