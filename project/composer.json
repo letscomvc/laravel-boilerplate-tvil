@@ -20,6 +20,7 @@
         "laravel/tinker": "^2.5",
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^2.2",
+        "spatie/laravel-query-builder": "^3.3",
         "tightenco/ziggy": "^0.9.4"
     },
     "require-dev": {

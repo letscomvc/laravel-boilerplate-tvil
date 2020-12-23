@@ -74,7 +74,7 @@ class Flash
         $this->messages[$type] = array_unique($this->messages[$type]);
 
         foreach ($this->messages as $key => $messages) {
-            app('session')->flash($key, $messages);
+            session()->flash('flash.'.$key, $messages);
         }
 
         return $this;
