@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use Illuminate\Support\Arr;
+use Illuminate\Database\PostgresConnection;
 
 trait SearchScope
 {
@@ -12,22 +12,12 @@ trait SearchScope
         ?array $searchBy = null,
         ?array $searchByRelationship = null
     ) {
-        if (method_exists(get_called_class(), 'setupSearch')) {
-            $this->setupSearch();
-        }
-
         if ($searchBy !== null) {
-            $this->searchBy = array_merge_recursive(
-                Arr::wrap($this->searchBy),
-                $searchBy
-            );
+            $this->searchBy = $searchBy;
         }
 
         if ($searchByRelationship !== null) {
-            $this->searchByRelationship = array_merge_recursive(
-                $this->searchByRelationship,
-                $searchByRelationship
-            );
+            $this->searchByRelationship = $searchByRelationship;
         }
 
         $query->where(function ($query) use ($term) {
@@ -45,10 +35,16 @@ trait SearchScope
 
     private function addConditions($query, $term, $searchBy)
     {
-        $searchBy = array_filter($searchBy);
-        foreach ($searchBy as $key => $field) {
-            $query->orWhereRaw("CAST({$field} as VARCHAR) ILIKE ?", "%$term%");
-        }
+        $terms = str_getcsv($term, ' ', '"');
+        collect($terms)
+            ->filter()
+            ->each(function ($term) use ($searchBy, $query) {
+                foreach (array_filter($searchBy) as $key => $field) {
+                    (!$query->getConnection() instanceof PostgresConnection)
+                        ? $query->orWhereRaw("{$field} LIKE ?", "$term%")
+                        : $query->orWhereRaw("CAST({$field} as VARCHAR) ILIKE ?", "$term%");
+                }
+            });
 
         return $query;
     }
