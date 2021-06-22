@@ -1,0 +1,49 @@
+name: Tests (PHP)
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - develop
+    - release-candidate
+    - hotfixes
+    - master
+
+jobs:
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v1
+        with:
+          path: ./project/vendor
+          key: composer-${{ hashFiles('./project/composer.lock') }}
+
+      - name: Run composer install
+        run: composer install -n --prefer-dist
+        working-directory: ./project
+        env:
+          APP_ENV: testing
+
+      - name: Prepare Laravel Application
+        working-directory: ./project
+        run: |
+          cp .env.testing.example .env
+          php artisan key:generate
+      - name: Run tests
+        working-directory: ./project
+        run: ./vendor/bin/phpunit --testsuite=Unit
+        env:
+          APP_ENV: testing
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        if: failure()
+        with:
+          name: Logs
+          path: ./project/storage/logs
